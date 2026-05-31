@@ -1,0 +1,132 @@
+PROMPT SERVICES BACKEND
+
+Genera los siguientes servicios VACIOS del backend para una aplicacion web de Ajedrez.
+Los servicios deben estar separados en interfaces e implementaciones.
+
+ESTRUCTURA
+La capa services representa la logica de negocio o logica de aplicacion.
+Los controladores reciben peticiones HTTP y llaman a los servicios.
+Los servicios coordinan las operaciones del sistema.
+Los adaptadores se encargaran del acceso a datos.
+
+RESPONSABILIDAD DE SERVICES
+- Definir las operaciones principales de la aplicacion.
+- Aplicar reglas de negocio.
+- Coordinar usuarios, autenticacion y partidas.
+- Llamar al motor de ajedrez cuando haga falta.
+- Devolver datos limpios a los controladores.
+- Lanzar errores claros si algo no se puede hacer.
+
+
+AuthenticationServiceImpl.py
+Implementa AuthenticationService.
+
+ESTADO ACTUAL
+- Genera un token temporal con formato token-username.
+- Valida tokens temporales que empiezan por token-.
+- Acepta tambien el formato Bearer token-username.
+
+ESTADO FUTURO
+- Sustituir el token temporal por JWT.
+- Comprobar usuario y password usando UserService o UserAdapter.
+- Aplicar la autenticacion real pedida por el proyecto.
+
+
+AuthenticationService.py
+Define la interfaz de autenticacion.
+
+METODOS PREVISTOS
+
+login(username: str, password: str) -> str
+- Recibe username y password.
+- Devuelve un token si el login es correcto.
+
+validate_token(token: str) -> bool
+- Recibe un token.
+- Devuelve True si el token es valido.
+- Devuelve False si el token no es valido.
+
+
+UserServiceImpl.py
+Implementa UserService.
+
+ESTADO ACTUAL
+- Guarda usuarios en memoria temporal.
+- Evita usernames duplicados.
+- Permite crear, buscar, actualizar y borrar usuarios.
+
+ESTADO FUTURO
+- Sustituir la memoria temporal por UserAdapter.
+- UserAdapter tendra implementacion sin ORM y con ORM.
+- El servicio no deberia saber si los datos vienen de SQLite, ORM o memoria.
+
+
+UserService.py
+Define la interfaz de usuarios.
+
+METODOS PREVISTOS
+
+get_user_by_id(user_id: int) -> dict | None
+- Busca un usuario por id.
+
+get_user_by_username(username: str) -> dict | None
+- Busca un usuario por username.
+
+create_user(request: UserCreateRequest) -> dict
+- Crea un usuario nuevo.
+
+update_user(user_id: int, request: UserUpdateRequest) -> dict | None
+- Actualiza un usuario existente.
+
+delete_user(user_id: int) -> bool
+- Borra un usuario existente.
+
+
+GameServiceImpl.py
+Implementa GameService.
+
+ESTADO ACTUAL
+- Guarda partidas en memoria temporal.
+- Crea una instancia de GameEngineService por partida.
+- Usa el motor de ajedrez para iniciar partida, consultar tablero y mover piezas.
+- Convierte PieceInfo en diccionarios para responder al controlador.
+
+ESTADO FUTURO
+- Sustituir la memoria temporal por GameAdapter.
+- Guardar estado de partidas si hace falta.
+- Mantener las reglas de ajedrez dentro de engine.
+
+
+GameService.py
+Define la interfaz de partidas.
+
+METODOS PREVISTOS
+
+create_game(request: GameCreateRequest) -> dict
+- Crea una partida nueva.
+
+get_game(game_id: int) -> dict | None
+- Busca una partida por id.
+
+get_board(game_id: int) -> list[dict] | None
+- Devuelve el tablero actual de una partida.
+
+make_move(game_id: int, request: MovementRequest) -> dict | None
+- Realiza un movimiento en una partida.
+
+delete_game(game_id: int) -> bool
+- Borra o finaliza una partida.
+## AÑADIDOS DE ÚLTIMA HORA
+
+Servicios actualizados:
+- AuthenticationServiceImpl ya usa JWT real y UserAdapter para comprobar password_hash.
+- UserService permite busqueda flexible con search_users(query).
+- GameService permite listar partidas activas con get_live_games().
+- GameService devuelve estado completo con get_state(game_id).
+- GameService guarda board_state tras crear partida y tras cada movimiento.
+- InvitationService gestiona enviar, listar, aceptar y rechazar invitaciones.
+
+Reglas nuevas:
+- Al aceptar una invitacion se crea una partida usando GameService actual.
+- El motor de ajedrez sigue siendo responsable de validar reglas.
+- WebSocket no contiene logica de negocio; solo avisa cambios emitidos desde controladores.

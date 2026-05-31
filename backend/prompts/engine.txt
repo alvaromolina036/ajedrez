@@ -1,0 +1,89 @@
+AJEDREZ CON TABLERO COMO LISTA DE PIEZAS
+
+Genera en Python la estructura completa de un juego de Ajedrez. Debes escribir todas las clases y métodos que te diga sin añadir ni borrar ninguna más, como mucho avisame de algun detalle que debería corregir, y todas los métodos definelos solo con el nombre y su descripción de el funcionamiento de cada uno con un '#', que reciban por ahora solo el (self) y que solo tengan dentro un (pass). Las siguientes clases y métodos son estas:
+
+Class GameController - Por donde se accede al back-end, encargado de coordinar las peticiones, SIN NADA DE REGLAS DE AJEDREZ.
+init # Constructor del controlador de la partida
+start_game # Iniciar nueva partida
+make_move # Recibir un movimiento del frontend y delegarlo al Game
+get_board # Representación del tablero 
+get_game_status # Estado actual de la partida
+resign # Un jugador se rinde, fin de la partida
+
+Class Game - Consta de las reglas y el flujo de de la partida.
+init # Contructor de la partida y su tablero
+start_game # Colocar piezas en el tablero y comenzar partida
+make_move # Realizar un movimiento según reglas
+next_turn # Pasar turnos de jugador a jugador
+checkmate # Fin de partida en jaque mate
+draw # Fin de pArtida en tablas
+movement_history # Historial de movimientos de la partida
+
+Class BoardReadOnly - SOLO CONSULTAS del tablero.
+init # Constructor del tablero para SOLO LECTURA, CON LISTA DE PIEZAS
+get_piece # Devolver la pieza que ocupa la posición solicitada
+board_position # Devolver representación completa del tablero
+path_clear # Comprobación de casillas disponibles entre dos POSICIONES (no piezas) 
+
+Class BoardMutable (hereda de BoardReadOnly) - Modificaciones del tablero.
+init # Constructor del tablero MODIFICABLE
+place_piece # Colocar pieza en una posicion específica
+move_piece # Mover pieza de una casilla a otra
+eaten_piece # Registrar pieza capturada
+
+Específico de Pawn
+promote # Pawn promociona y es reemplazado por otra pieza
+en_passant # Pawn realiza el movimiento de una casilla diagonal
+
+Específico de King
+castle # King y Rook realizan el enroque
+
+Class Piece (abstracta) - Comportamiento básico de las piezas.
+init # Constructor de las piezas con su color y posición
+get_color # Color de la pieza (blanca o negra)
+move # Comprobar si un movimiento es válido
+
+Class Pawn / Knight / Bishop / Rook / Queen / King (heredan todas de Piece) - Reglas 'normales' del movimiento específico de cada pieza.
+init # Constructor de las piezas
+move # Movimiento válido para cada una de las piezas
+
+Extras de Class Pawn - Movimientos 'especiales' de las piezas.
+has_moved # Si Pawn ya ha realizado un movimiento para avance doble incial
+can_promote # Pawn ha llegado a la última fila del tablero y puede promocionar
+can_en_passant # un Pawn 'has_moved' 2 casillas al lado de Pawn, por lo que puede capturar al paso
+
+Extras de Class King - Movimientos 'especiales' de las piezas.
+is_in_check # Una pieza apunta a King, por lo que está en jaque
+can_castle # King y Rook no se han movido y pueden enrocar
+
+
+AÑADIDOS DE ÚLTIMA HORA
+
+class FigureInfo - Recopilación de la información de las piezas
+Dataclass simplemente con información de la pieza necesaria para invocarlas fácilmente a la hora de preparar el frontend, tiene x, y, color y tipo.
+
+class Movement - Recopilación de un movimiento
+Dataclass que tiene una x/y origen e x/y destino.
+
+
+LÓGICA DEL PROYECTO
+GameController -> Game
+Recibe las peticiones del front-end y las delega a Game.
+
+Game -> BoardMutable
+Control de la partida usando BoardMutable (con una lista de Piezas como parámetro), que permite modificación.
+
+BoardMutable --Hereda--> BoardReadOnly
+Al heredar de BoardReadOnly tiene los métodos de lectura del tablero y aquí se implementan los métodos de modificación.
+
+BoardMutable -> Piece
+Consulta y modifica las piezas directamente en la lista.
+
+Piece -> BoardReadOnly
+Permite a las piezas consultar el tablero sin poder modificarlo pero si decidiendo si un movimiento es válido.
+
+Pawn / Rook / Knight / Bishop / Queen / King --Hereda--> Piece
+Cada una implementa su propia lógica de como pueden realizar sus movimientos según las reglas del ajedrez además de los movimientos especiales (de Pawn / King).
+
+FigureInfo / Movement
+Facilitar la comunicación con el frontend mediante el controlador.

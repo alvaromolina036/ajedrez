@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajedrez Online - Tablero</title>
+    <link rel="stylesheet" href="css/style_game.css">
+</head>
+<body>
+    <div class="game-shell">
+        <header class="topbar">
+            <a href="main.html" class="back-link">Volver al panel</a>
+            <div>
+                <p class="eyebrow">Partida en curso</p>
+                <h1 id="gameTitle">Tablero</h1>
+            </div>
+            <button type="button" id="finishGameButton">Finalizar partida</button>
+        </header>
+
+        <main class="game-layout">
+            <section class="board-zone">
+                <div class="board-toolbar">
+                    <span id="turnText">Turno: blancas</span>
+                    <button type="button" id="resetBoardButton">Reiniciar tablero</button>
+                </div>
+                <div class="chess-board" id="chessBoard" aria-label="Tablero de ajedrez"></div>
+            </section>
+
+            <aside class="match-panel">
+                <section>
+                    <h2>Jugadores</h2>
+                    <div class="player-row">
+                        <span>Blancas</span>
+                        <strong id="whitePlayer">Jugador</strong>
+                    </div>
+                    <div class="player-row">
+                        <span>Negras</span>
+                        <strong id="blackPlayer">Rival</strong>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Registro de movimientos</h2>
+                    <ol class="move-list" id="moveList"></ol>
+                </section>
+
+                <p class="game-message" id="gameMessage" role="alert"></p>
+            </aside>
+        </main>
+    </div>
+
+    <script src="javascript/js_game.js"></script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajedrez Online - Panel</title>
+    <link rel="stylesheet" href="css/style_main.css">
+</head>
+<body>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="brand-row">
+                <span class="brand-mark">&#9822;</span>
+                <span>Ajedrez Online</span>
+            </div>
+
+            <nav class="nav-list" aria-label="Navegacion principal">
+                <details open>
+                    <summary>Juego</summary>
+                    <button class="nav-item active" type="button">Panel</button>
+                    <button class="nav-item" type="button" id="focusCreateGameButton">Nueva partida</button>
+                    <button class="nav-item" type="button" id="refreshGamesButton">Actualizar partidas</button>
+                    <button class="nav-item" type="button" id="refreshInvitationsButton">Invitaciones</button>
+                </details>
+
+                <details open>
+                    <summary>Cuenta</summary>
+                    <button class="nav-item" type="button" id="logoutButton">Cerrar sesi&oacute;n</button>
+                </details>
+            </nav>
+        </aside>
+
+        <main class="dashboard">
+            <header class="dashboard-header">
+                <div>
+                    <p class="eyebrow">Panel de juego</p>
+                    <h1 id="welcomeText">Bienvenido</h1>
+                    <p class="header-copy">Gestiona tus partidas activas, elige rival y vuelve al tablero cuando quieras continuar.</p>
+                </div>
+                <div class="header-actions">
+                    <span class="api-pill" id="apiStatus">API</span>
+                    <button type="button" class="primary-action" id="createGameButton">Crear partida</button>
+                </div>
+            </header>
+
+            <section class="summary-grid">
+                <article class="summary-card">
+                    <span class="metric" id="sessionStatus">--</span>
+                    <p>Estado de sesi&oacute;n</p>
+                </article>
+                <article class="summary-card">
+                    <span class="metric" id="userIdLabel">--</span>
+                    <p>ID de usuario</p>
+                </article>
+                <article class="summary-card">
+                    <span class="metric" id="loadedGamesCount">0</span>
+                    <p>Partidas cargadas</p>
+                </article>
+            </section>
+
+            <section class="workspace">
+                <div class="panel" id="createGamePanel">
+                    <div class="panel-header">
+                        <h2>Crear partida</h2>
+                        <span>Usuarios reales</span>
+                    </div>
+                    <div class="panel-body">
+                        <form class="inline-form" id="searchUserForm">
+                            <label for="rivalUsername">Buscar usuario por nombre o ID</label>
+                            <div>
+                                <input type="text" id="rivalUsername" autocomplete="off" required>
+                                <button type="submit">Buscar</button>
+                            </div>
+                        </form>
+
+                        <div class="result-card hidden" id="foundUserCard">
+                            <div>
+                                <strong id="foundUsername"></strong>
+                                <span id="foundUserId"></span>
+                            </div>
+                            <button type="button" id="createGameWithUserButton">Crear</button>
+                            <button type="button" id="inviteUserButton">Invitar</button>
+                        </div>
+
+                        <form class="inline-form" id="openGameForm">
+                            <label for="gameIdInput">Abrir partida por ID</label>
+                            <div>
+                                <input type="number" id="gameIdInput" min="1" required>
+                                <button type="submit">Abrir</button>
+                            </div>
+                        </form>
+
+                        <p class="panel-message" id="createGameMessage"></p>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>Usuarios conectados</h2>
+                        <span>WebSocket</span>
+                    </div>
+                    <ul class="opponent-list" id="connectedUsersList"></ul>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>Invitaciones pendientes</h2>
+                        <span>Recibidas</span>
+                    </div>
+                    <ul class="game-list" id="invitationList"></ul>
+                </div>
+
+                <div class="panel panel-wide">
+                    <div class="panel-header">
+                        <h2>Partidas en vivo</h2>
+                        <span>API</span>
+                    </div>
+                    <ul class="game-list" id="gameList"></ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="javascript/js_main.js"></script>
+</body>
+</html>

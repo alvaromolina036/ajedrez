@@ -1,0 +1,125 @@
+PROMPT CONTROLLERS BACKEND
+Genera los siguientes controladores con los siguientes endpoints VACIOS de una API con FastAPI para una aplicacion web de ajedrez.
+
+Los controladores deberán:
+- Recibir datos de entrada.
+- Validar aspectos básicos de la petición.
+- Llamar al servicio correspondiente.
+- Devolver una respuesta adecuada.
+
+ESTADO INICIAL DE LOS ENDPOINTS
+
+Endpoints definidos, pero sin implementar la logica real todavia.
+Cada endpoint puede devolver una respuesta temporal indicando que esta pendiente de conectar con el servicio.
+
+
+AuthenticationController.py
+Se encarga de las rutas relacionadas con autenticacion.
+Debe usar APIRouter con prefix="/authentication" y tags=["authentication"].
+
+ENDPOINTS PREVISTOS
+
+POST /authentication/login
+- Recibe username y password en el body.
+- Valida que ambos campos existan.
+- Llama a AuthenticationService.login(username, password).
+- Devuelve un token si el login es correcto (sino, HTTPException).
+
+GET /authentication/verify
+- Recibe el token en el header Authorization.
+- Valida que el header exista.
+- Llama a AuthenticationService.validate_token(token).
+- Devuelve si el token es valido (sino, HTTPException).
+
+
+UserController.py
+
+Se encarga de las rutas relacionadas con usuarios.
+Debe usar APIRouter con prefix="/users" y tags=["users"].
+
+ENDPOINTS PREVISTOS
+
+GET /users/{user_id} - Ejemplo de GET con dato en el path
+- Recibe user_id desde la URL.
+- Valida que user_id sea correcto.
+- Llama a UserService.get_user_by_id(user_id).
+- Devuelve los datos del usuario (sino, HTTPException 404).
+
+GET /users?username=nombre - Ejemplo de GET con dato en el query
+- Recibe username como parametro.
+- Valida que username no este vacio.
+- Llama a UserService.get_user_by_username(username).
+- Devuelve el usuario encontrado (sino, HTTPException 404).
+
+POST /users - Crea un usuario
+- Recibe datos del usuario en el body.
+- Valida campos basicos.
+- Llama a UserService.create_user(...).
+- Devuelve el usuario creado (sino, HTTPException).
+
+PUT /users/{user_id} - Actualiza los datos de un usuario
+- Recibe user_id desde el path y datos nuevos en el body.
+- Valida datos basicos.
+- Llama a UserService.update_user(user_id, ...).
+- Devuelve el usuario actualizado (sino, HTTPException 404).
+
+DELETE /users/{user_id} - Borra los datos de un usuario
+- Recibe user_id desde el path.
+- Llama a UserService.delete_user(user_id).
+- Devuelve mensaje de borrado correcto (sino, HTTPException 404).
+
+
+GameController.py
+
+Este controlador se encarga de las rutas relacionadas con partidas de ajedrez.
+Debe usar APIRouter con prefix="/games" y tags=["games"].
+
+ENDPOINTS PREVISTOS
+
+POST /games
+- Crea una nueva partida.
+- Recibe los usuarios o jugadores necesarios en el body.
+- Llama a GameService.create_game(...).
+- Devuelve la partida creada (sino, HTTPException).
+
+GET /games/{game_id}
+- Recibe game_id desde el path.
+- Llama a GameService.get_game(game_id).
+- Devuelve informacion general de la partida (sino, HTTPException 404).
+
+GET /games/{game_id}/board
+- Recibe game_id desde el path.
+- Llama a GameService.get_board(game_id).
+- Devuelve el estado actual del tablero (sino, HTTPException 404).
+
+PUT /games/{game_id}/move
+- Recibe game_id desde el path y un movimiento en el body.
+- El movimiento debe incluir coordenadas de origen y destino.
+- Valida que las coordenadas existan.
+- Llama a GameService.make_move(game_id, movement).
+- Devuelve el resultado del movimiento y el tablero actualizado.
+- No debe comprobar reglas de ajedrez.
+- Si el movimiento es invalido, devuelve HTTPException 400.
+
+DELETE /games/{game_id}
+- Recibe game_id desde el path.
+- Llama a GameService.delete_game(game_id) o GameService.finish_game(game_id).
+- Devuelve mensaje de partida eliminada o finalizada.
+- Si no existe, devuelve HTTPException 404.
+## AÑADIDOS DE ÚLTIMA HORA
+
+Endpoints nuevos añadidos sin eliminar los existentes:
+- GET /users/search?query= busca usuarios por username parcial o por ID.
+- GET /users/online devuelve usuarios conectados por WebSocket.
+- GET /games/live devuelve partidas activas.
+- GET /games/{game_id}/state devuelve partida, tablero y turno.
+- POST /invitations envia invitacion a otro usuario.
+- GET /invitations/pending lista invitaciones pendientes del usuario autenticado.
+- PUT /invitations/{invitation_id}/accept acepta invitacion y crea partida.
+- PUT /invitations/{invitation_id}/reject rechaza invitacion.
+- WS /ws?token=JWT mantiene conexion WebSocket autenticada.
+
+Reglas nuevas:
+- REST sigue siendo la fuente de verdad.
+- WebSocket solo notifica eventos: game_updated, invitation_received, invitation_answered y presence_changed.
+- Los controladores protegidos siguen usando JWT con Authorization: Bearer <token>.

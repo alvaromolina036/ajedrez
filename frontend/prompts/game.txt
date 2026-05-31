@@ -1,0 +1,56 @@
+PROMPT GAME FRONTEND
+
+Actúa como un desarrollador Frontend experto en interfaces de juegos online.
+
+Mejora la página game.html manteniendo la estructura actual de la partida de ajedrez.
+
+Objetivos:
+
+* Conservar el diseño actual porque ya funciona correctamente.
+* Corregir problemas visuales y mejorar la experiencia de usuario.
+
+Cambios obligatorios:
+
+Botones:
+
+* Corregir los botones "Volver al panel" y "Finalizar partida".
+* Evitar que el texto se corte, desborde o se muestre en varias líneas.
+* Adaptar correctamente tamaños, padding y responsive.
+* Mantener coherencia visual con el resto de la aplicación.
+
+Mejoras visuales:
+
+* Hover elegante en todas las acciones disponibles.
+* Animaciones suaves en botones.
+* Transiciones al mover el cursor.
+* Pequeños efectos interactivos sin afectar al rendimiento.
+
+Mejoras generales de la web:
+
+* Elementos interactivos al pasar el cursor.
+* Tarjetas con ligeros efectos de movimiento.
+* Menús desplegables con animaciones suaves.
+* Microinteracciones modernas.
+* Mantener una apariencia limpia y profesional.
+* Evitar sobrecargar la interfaz con demasiadas animaciones.
+
+El resultado debe parecer una plataforma de ajedrez online moderna, fluida y profesional similar a aplicaciones web actuales.
+## AÑADIDOS DE ÚLTIMA HORA
+
+Nuevos endpoints añadidos:
+- GET /games/{id}/state para obtener partida, tablero y turno en una sola llamada.
+- PUT /games/{id}/move mantiene el movimiento real mediante REST.
+- DELETE /games/{id} mantiene la finalizacion o eliminacion de partida.
+- WS /ws?token=JWT para recibir avisos de actualizacion.
+
+Cambios relevantes para frontend:
+- El tablero se carga desde GET /games/{id}/state.
+- El frontend no valida reglas completas de ajedrez; delega en el backend.
+- Al mover una pieza se llama a PUT /games/{id}/move.
+- El rival actualiza su tablero sin recargar la pagina gracias al aviso WebSocket.
+
+Nuevas reglas frontend-backend:
+- WebSocket no mueve piezas.
+- Si llega game_updated para la partida abierta, el frontend llama de nuevo a GET /games/{id}/state.
+- El estado persistente de la partida vive en games.board_state en MariaDB.
+- Cada movimiento actualizado por REST guarda el tablero y el turno en backend.

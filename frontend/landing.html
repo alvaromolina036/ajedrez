@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajedrez Online - Acceso</title>
+    <link rel="stylesheet" href="css/style_landing.css">
+</head>
+<body>
+    <div class="api-status" id="apiStatus" title="Comprobando conexion con la API">
+        <span></span>
+        <strong>API</strong>
+    </div>
+
+    <main class="auth-page">
+        <section class="auth-visual">
+            <div class="brand-row">
+                <span class="brand-mark">&#9822;</span>
+                <span>Ajedrez Online</span>
+            </div>
+
+            <h1>Ajedrez online para crear partidas, jugar y continuar cuando quieras.</h1>
+            <p>Entra en tu cuenta, elige rival y abre un tablero limpio para jugar partidas guardadas desde el panel principal.</p>
+
+            <div class="feature-row">
+                <span>Partidas activas</span>
+                <span>Panel claro</span>
+                <span>Tablero adaptable</span>
+            </div>
+        </section>
+
+        <section class="hero-preview" aria-label="Vista previa de partida">
+            <div class="preview-header">
+                <div>
+                    <span>Partida activa</span>
+                    <strong>Blancas al movimiento</strong>
+                </div>
+                <span class="clock">12:00</span>
+            </div>
+
+            <div class="board-preview" aria-hidden="true">
+                <span class="piece p1">&#9812;</span>
+                <span class="piece p2">&#9819;</span>
+                <span class="piece p3">&#9822;</span>
+                <span class="piece p4">&#9817;</span>
+                <span class="piece p5">&#9820;</span>
+            </div>
+
+            <div class="preview-footer">
+                <span>T&uacute;</span>
+                <strong>vs</strong>
+                <span>Rival</span>
+            </div>
+        </section>
+
+        <section class="auth-panel">
+            <div class="mode-switch" role="tablist">
+                <button type="button" class="mode-button active" id="loginMode">Entrar</button>
+                <button type="button" class="mode-button" id="registerMode">Registro</button>
+            </div>
+
+            <h2 id="formTitle">Iniciar sesi&oacute;n</h2>
+            <p class="helper-text" id="formSubtitle">Entra para acceder a tus partidas y crear nuevos tableros.</p>
+
+            <form id="authForm">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" name="username" autocomplete="username" required>
+
+                <label for="password">Contrase&ntilde;a</label>
+                <input type="password" id="password" name="password" autocomplete="current-password" required>
+
+                <button type="submit" id="submitButton">Entrar</button>
+            </form>
+
+            <p class="error-message" id="errorMsg" role="alert"></p>
+        </section>
+    </main>
+
+    <script src="javascript/js_landing.js"></script>
+</body>
+</html>

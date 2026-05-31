@@ -1,0 +1,54 @@
+PROMPT LANDING FRONTEND
+
+Actúa como un diseñador UX/UI senior especializado en aplicaciones web modernas.
+
+Rediseña la página landing.html de una plataforma de ajedrez online manteniendo la paleta de colores actual del proyecto.
+
+Objetivos:
+
+* Diseño muy visual y moderno.
+* Reducir al mínimo el texto descriptivo.
+* Destacar visualmente el acceso a la plataforma.
+* Mantener una estética elegante relacionada con el ajedrez.
+* Diseño responsive para escritorio, tablet y móvil.
+
+Elementos obligatorios:
+
+* Logo y nombre de la plataforma.
+* Formulario de inicio de sesión claramente visible.
+* Botón para iniciar sesión.
+* Opción visible para registrarse si el usuario no tiene cuenta.
+* Imagen, ilustración o composición visual relacionada con el ajedrez.
+* Indicador de estado de la API en una esquina de la pantalla:
+
+  * Verde: API activa.
+  * Rojo: API desconectada.
+  * Tooltip explicativo al pasar el cursor.
+* Botón o enlace para acceder a la aplicación tras autenticarse.
+
+Interacciones:
+
+* Hover suave en botones.
+* Transiciones modernas.
+* Pequeñas animaciones en piezas de ajedrez o elementos decorativos.
+* Efectos visuales elegantes sin sobrecargar la interfaz.
+
+Genera únicamente el HTML y el CSS necesarios para lograr este resultado.
+## AÑADIDOS DE ÚLTIMA HORA
+
+Nuevos endpoints relevantes:
+- POST /users para registrar usuarios reales.
+- POST /authentication/login para iniciar sesion y recibir JWT real.
+- GET /authentication/verify para comprobar sesion protegida.
+- GET / para comprobar estado real de la API.
+
+Cambios relevantes para frontend:
+- El formulario ya no usa datos temporales ni simulados.
+- El login y registro deben enviar peticiones reales al backend.
+- El token JWT recibido se guarda en sessionStorage como authToken.
+- El indicador de API debe reflejar si el backend responde realmente.
+
+Nuevas reglas frontend-backend:
+- Todas las peticiones con body deben enviar Content-Type: application/json.
+- Las rutas protegidas deben usar Authorization: Bearer <token>.
+- Si la API no esta disponible, se muestra estado desconectado y no se simula login.

@@ -1,0 +1,130 @@
+PROMPT UTILS BACKEND
+
+Genera una carpeta utils para guardar funciones auxiliares reutilizables.
+Estas funciones no pertenecen directamente a controllers, services, adapters, models ni engine.
+Son utilidades tecnicas compartidas.
+
+RESPONSABILIDAD DE UTILS
+- Contener funciones tecnicas reutilizables.
+- Evitar duplicar codigo de seguridad.
+- Mantener services mas legibles.
+
+
+SecurityUtils.py
+Este archivo contiene utilidades de seguridad para:
+- Hash de passwords.
+- Verificacion de passwords.
+- Creacion de JWT.
+- Validacion de JWT.
+
+
+FUNCIONES INTERNAS
+
+_base64url_encode(data: bytes) -> str
+- Codifica bytes en base64 seguro para JWT.
+
+_base64url_decode(data: str) -> bytes
+- Decodifica texto base64 seguro para JWT.
+
+
+FUNCIONES DE PASSWORD
+
+hash_password(password: str) -> str
+- Recibe una password en claro.
+- Genera una sal aleatoria.
+- Aplica PBKDF2 con SHA256.
+- Devuelve un texto con algoritmo, iteraciones, sal y hash.
+- El resultado se guarda en users.password_hash.
+
+verify_password(password: str, stored_hash: str) -> bool
+- Recibe la password enviada por el usuario y el hash guardado en base de datos.
+- Recalcula el hash usando la misma sal e iteraciones.
+- Compara usando hmac.compare_digest.
+- Devuelve True si coincide y False si no coincide.
+
+
+Funciones de JWT:
+
+create_jwt(payload: dict, expires_in_seconds: int = 3600) -> str
+- Crea un JWT firmado.
+- Anade fecha de caducidad con exp.
+- Usa HMAC SHA256.
+- Devuelve un token con formato header.payload.signature.
+
+verify_jwt(token: str) -> dict | None
+- Acepta token normal o con prefijo Bearer.
+- Verifica que tenga tres partes.
+- Recalcula la firma.
+- Comprueba que la firma coincide.
+- Decodifica el payload.
+- Comprueba que no haya caducado.
+- Devuelve el payload si es valido.
+- Devuelve None si no es valido.
+
+
+NOTAS
+
+El backend recibe la password durante login o registro porque necesita comprobarla.
+Lo importante es que no se guarda en claro.
+Al crear o actualizar usuarios, UserServiceImpl llama a hash_password.
+Al iniciar sesion, AuthenticationServiceImpl llama a verify_password.
+Si las credenciales son correctas, AuthenticationServiceImpl genera un JWT.
+
+
+AuthDependencies.py
+Este archivo contiene dependencias reutilizables de FastAPI relacionadas con autenticacion.
+
+RESPONSABILIDAD DE AuthDependencies
+- Centralizar la validacion del header Authorization.
+- Evitar duplicar codigo de autenticacion en controladores.
+- Devolver al controlador los datos del usuario autenticado si el token es valido.
+
+FUNCIONES
+
+require_authenticated_user(authorization: str | None) -> dict
+- Recibe el header Authorization.
+- Comprueba que el header exista.
+- Valida el JWT usando verify_jwt.
+- Si el token es correcto, devuelve el payload del token.
+- Si el token no existe o no es valido, lanza HTTPException 401.
+
+USO
+Los controladores protegidos usan esta funcion con Depends.
+Esto permite proteger endpoints sin repetir la validacion del JWT en cada metodo.
+
+ENDPOINTS PUBLICOS
+- POST /users
+- POST /authentication/login
+
+ENDPOINTS PROTEGIDOS
+- GET /authentication/verify
+- GET /users/{user_id}
+- GET /users?username=...
+- PUT /users/{user_id}
+- DELETE /users/{user_id}
+- POST /games
+- GET /games/{game_id}
+- GET /games/{game_id}/board
+- PUT /games/{game_id}/move
+- DELETE /games/{game_id}
+## AÑADIDOS DE ÚLTIMA HORA
+
+Utilidades nuevas:
+- WebSocketManager.py
+
+Responsabilidad de WebSocketManager:
+- Guardar usuarios conectados en memoria.
+- Enviar eventos a un usuario concreto.
+- Emitir eventos globales.
+- Listar usuarios online.
+
+Eventos usados:
+- game_updated
+- invitation_received
+- invitation_answered
+- presence_changed
+
+Reglas:
+- La presencia online es temporal y vive en memoria.
+- WebSocket no mueve piezas ni modifica partidas.
+- REST sigue siendo la fuente de verdad.
