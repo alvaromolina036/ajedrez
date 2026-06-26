@@ -10,9 +10,9 @@ class GameService(ABC):
     def create_game(self, request: GameCreateRequest) -> dict:
         pass
 
-    # Lista partidas activas.
+    # Lista partidas guardadas activas.
     @abstractmethod
-    def get_live_games(self) -> list[dict]:
+    def list_games(self) -> list[dict]:
         pass
 
     # Busca una partida por id.

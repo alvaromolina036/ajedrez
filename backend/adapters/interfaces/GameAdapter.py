@@ -8,9 +8,9 @@ class GameAdapter(ABC):
     def find_by_id(self, game_id: int) -> dict | None:
         pass
 
-    # Lista partidas activas.
+    # Lista partidas guardadas activas.
     @abstractmethod
-    def find_live_games(self) -> list[dict]:
+    def find_all(self) -> list[dict]:
         pass
 
     # Guarda una partida nueva.

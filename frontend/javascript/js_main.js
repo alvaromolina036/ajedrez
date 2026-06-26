@@ -1,11 +1,11 @@
 const API_CANDIDATES = [
     sessionStorage.getItem("apiBaseUrl"),
     "http://127.0.0.1:8000",
+    "http://127.0.0.1:8002",
     "http://127.0.0.1:8001",
 ].filter(Boolean);
 
 let apiBaseUrl = "";
-let socket = null;
 
 const token = sessionStorage.getItem("authToken");
 const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
@@ -22,7 +22,6 @@ const apiStatus = document.getElementById("apiStatus");
 const createGameButton = document.getElementById("createGameButton");
 const focusCreateGameButton = document.getElementById("focusCreateGameButton");
 const refreshGamesButton = document.getElementById("refreshGamesButton");
-const refreshInvitationsButton = document.getElementById("refreshInvitationsButton");
 const logoutButton = document.getElementById("logoutButton");
 const searchUserForm = document.getElementById("searchUserForm");
 const rivalUsername = document.getElementById("rivalUsername");
@@ -30,12 +29,9 @@ const foundUserCard = document.getElementById("foundUserCard");
 const foundUsername = document.getElementById("foundUsername");
 const foundUserId = document.getElementById("foundUserId");
 const createGameWithUserButton = document.getElementById("createGameWithUserButton");
-const inviteUserButton = document.getElementById("inviteUserButton");
 const openGameForm = document.getElementById("openGameForm");
 const gameIdInput = document.getElementById("gameIdInput");
 const createGameMessage = document.getElementById("createGameMessage");
-const connectedUsersList = document.getElementById("connectedUsersList");
-const invitationList = document.getElementById("invitationList");
 const gameList = document.getElementById("gameList");
 
 let selectedRival = null;
@@ -93,7 +89,7 @@ async function apiRequest(path, options = {}) {
 }
 
 function setApiState(isOnline) {
-    apiStatus.classList.toggle("online", isOnline);
+    apiStatus.classList.toggle("connected", isOnline);
     apiStatus.classList.toggle("offline", !isOnline);
     apiStatus.textContent = isOnline && apiBaseUrl ? `API ${apiBaseUrl.split(":").pop()}` : "API desconectada";
 }
@@ -103,59 +99,12 @@ function openGame(gameId) {
     window.location.href = "game.html";
 }
 
-function renderOnlineUsers(users) {
-    connectedUsersList.innerHTML = "";
-
-    if (users.length === 0) {
-        connectedUsersList.innerHTML = "<li class=\"empty-state\">No hay usuarios conectados ahora mismo.</li>";
-        return;
-    }
-
-    users.forEach((user) => {
-        const item = document.createElement("li");
-        item.className = "opponent-item";
-        item.innerHTML = `
-            <div>
-                <strong>${user.username}</strong>
-                <span>ID ${user.id} - conectado</span>
-            </div>
-        `;
-        connectedUsersList.appendChild(item);
-    });
-}
-
-function renderInvitations(invitations) {
-    invitationList.innerHTML = "";
-
-    if (invitations.length === 0) {
-        invitationList.innerHTML = "<li class=\"empty-state\">No tienes invitaciones pendientes.</li>";
-        return;
-    }
-
-    invitations.forEach((invitation) => {
-        const item = document.createElement("li");
-        item.className = "game-item";
-        item.innerHTML = `
-            <div>
-                <strong>Invitacion #${invitation.id}</strong>
-                <span>Usuario ${invitation.from_user_id} quiere jugar contigo</span>
-            </div>
-            <button type="button" data-action="accept">Aceptar</button>
-            <button type="button" data-action="reject">Rechazar</button>
-        `;
-
-        item.querySelector("[data-action='accept']").addEventListener("click", () => answerInvitation(invitation.id, "accept"));
-        item.querySelector("[data-action='reject']").addEventListener("click", () => answerInvitation(invitation.id, "reject"));
-        invitationList.appendChild(item);
-    });
-}
-
 function renderGames(games) {
     loadedGamesCount.textContent = games.length;
     gameList.innerHTML = "";
 
     if (games.length === 0) {
-        gameList.innerHTML = "<li class=\"empty-state\">No hay partidas activas en la API.</li>";
+        gameList.innerHTML = "<li class=\"empty-state\">No hay partidas disponibles en la API.</li>";
         return;
     }
 
@@ -185,25 +134,9 @@ async function verifySession() {
     }
 }
 
-async function loadOnlineUsers() {
+async function loadGames() {
     try {
-        renderOnlineUsers(await apiRequest("/users/online"));
-    } catch (error) {
-        connectedUsersList.innerHTML = `<li class="empty-state">${error.message}</li>`;
-    }
-}
-
-async function loadInvitations() {
-    try {
-        renderInvitations(await apiRequest("/invitations/pending"));
-    } catch (error) {
-        invitationList.innerHTML = `<li class="empty-state">${error.message}</li>`;
-    }
-}
-
-async function loadLiveGames() {
-    try {
-        renderGames(await apiRequest("/games/live"));
+        renderGames(await apiRequest("/games"));
     } catch (error) {
         gameList.innerHTML = `<li class="empty-state">${error.message}</li>`;
     }
@@ -244,64 +177,6 @@ async function createGameWithSelectedUser() {
     openGame(game.id);
 }
 
-async function sendInvitationToSelectedUser() {
-    if (!selectedRival) {
-        createGameMessage.textContent = "Busca primero un usuario rival.";
-        return;
-    }
-
-    const invitation = await apiRequest("/invitations", {
-        method: "POST",
-        body: JSON.stringify({
-            to_user_id: selectedRival.id,
-        }),
-    });
-
-    createGameMessage.textContent = `Invitacion #${invitation.id} enviada.`;
-}
-
-async function answerInvitation(invitationId, action) {
-    try {
-        const result = await apiRequest(`/invitations/${invitationId}/${action}`, {
-            method: "PUT",
-        });
-        await loadInvitations();
-        await loadLiveGames();
-        if (action === "accept" && result.game) {
-            openGame(result.game.id);
-        }
-    } catch (error) {
-        createGameMessage.textContent = error.message;
-    }
-}
-
-async function connectWebSocket() {
-    const baseUrl = await resolveApiBase();
-    const wsBaseUrl = baseUrl.replace("http://", "ws://").replace("https://", "wss://");
-    socket = new WebSocket(`${wsBaseUrl}/ws?token=${encodeURIComponent(token)}`);
-
-    socket.addEventListener("message", async (event) => {
-        const message = JSON.parse(event.data);
-
-        if (message.type === "presence_changed") {
-            renderOnlineUsers(message.users || []);
-        }
-
-        if (message.type === "game_updated") {
-            await loadLiveGames();
-        }
-
-        if (message.type === "invitation_received" || message.type === "invitation_answered") {
-            await loadInvitations();
-            await loadLiveGames();
-        }
-    });
-
-    socket.addEventListener("close", () => {
-        setTimeout(connectWebSocket, 2000);
-    });
-}
-
 welcomeText.textContent = `Bienvenido, ${currentUser.username}`;
 userIdLabel.textContent = String(currentUser.user_id);
 
@@ -315,13 +190,9 @@ focusCreateGameButton.addEventListener("click", () => {
     rivalUsername.focus();
 });
 
-refreshGamesButton.addEventListener("click", loadLiveGames);
-refreshInvitationsButton.addEventListener("click", loadInvitations);
+refreshGamesButton.addEventListener("click", loadGames);
 
 logoutButton.addEventListener("click", () => {
-    if (socket) {
-        socket.close();
-    }
     sessionStorage.clear();
     window.location.href = "landing.html";
 });
@@ -346,23 +217,10 @@ createGameWithUserButton.addEventListener("click", async () => {
     }
 });
 
-inviteUserButton.addEventListener("click", async () => {
-    createGameMessage.textContent = "";
-
-    try {
-        await sendInvitationToSelectedUser();
-    } catch (error) {
-        createGameMessage.textContent = error.message;
-    }
-});
-
 openGameForm.addEventListener("submit", (event) => {
     event.preventDefault();
     openGame(Number(gameIdInput.value));
 });
 
 verifySession();
-loadOnlineUsers();
-loadInvitations();
-loadLiveGames();
-connectWebSocket();
+loadGames();

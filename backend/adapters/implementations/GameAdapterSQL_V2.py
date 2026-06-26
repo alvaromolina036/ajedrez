@@ -23,8 +23,8 @@ class GameAdapterSQL_V2(GameAdapter):
                 return None
             return self._to_dict(game)
 
-    # Lista partidas activas usando ORM.
-    def find_live_games(self) -> list[dict]:
+    # Lista partidas guardadas activas usando ORM.
+    def find_all(self) -> list[dict]:
         with SessionLocal() as session:
             games = (
                 session.query(GameTable)

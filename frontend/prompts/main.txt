@@ -1,76 +1,12 @@
-PROMPT MAIN FRONTEND
+Redisenar `main.html` como panel minimo para auditoria academica.
 
-Actúa como un desarrollador Frontend senior especializado en dashboards interactivos.
+Debe mantener:
+- Verificacion visual de sesion.
+- ID y nombre del usuario autenticado.
+- Busqueda de rival por nombre o ID usando `GET /users/search`.
+- Creacion directa de partida usando `POST /games`.
+- Apertura de partida por ID.
+- Listado de partidas mediante `GET /games`.
+- Navegacion al tablero `game.html`.
 
-Rediseña la página main.html de una plataforma de ajedrez online.
-
-Objetivos:
-
-* Mantener una interfaz moderna y profesional.
-* Mejorar la experiencia visual y la organización de la información.
-* Utilizar componentes desplegables, paneles o tarjetas si aportan valor.
-* Diseño responsive.
-
-Requisitos funcionales:
-
-Panel lateral:
-
-* Mantener el sidebar existente o mejorarlo.
-* Permitir desplegar y contraer secciones.
-* Navegación clara y moderna.
-
-Jugadores conectados:
-
-* Mostrar únicamente usuarios reales conectados mediante la API.
-* No generar nombres ficticios ni datos de ejemplo.
-* Actualización dinámica de la lista de jugadores online.
-* Mostrar estado conectado/desconectado.
-
-Historial de partidas:
-
-* Mostrar partidas iniciadas.
-* Mostrar partidas finalizadas.
-* Indicar resultado cuando exista.
-* Ordenar por fecha.
-* Interfaz clara mediante tarjetas o tabla moderna.
-
-Crear partida:
-
-* Opción 1: Jugar contra IA.
-* Opción 2: Crear partida pública y esperar a un jugador real.
-* Interfaz intuitiva y visual.
-* No implementar la lógica de IA, únicamente la opción visual.
-
-Mejoras visuales:
-
-* Animaciones suaves.
-* Hover en tarjetas y botones.
-* Sidebar con transiciones.
-* Tarjetas con ligeros efectos de elevación.
-* Indicadores visuales para usuarios conectados y partidas activas.
-
-Genera una interfaz profesional, moderna e interactiva priorizando la experiencia de usuario.
-## AÑADIDOS DE ÚLTIMA HORA
-
-Nuevos endpoints añadidos:
-- GET /users/search?query= para buscar usuarios por username parcial o ID.
-- GET /users/online para mostrar usuarios conectados por WebSocket.
-- GET /games/live para listar partidas activas reales.
-- POST /invitations para enviar invitaciones.
-- GET /invitations/pending para ver invitaciones recibidas.
-- PUT /invitations/{id}/accept para aceptar invitaciones y crear partida.
-- PUT /invitations/{id}/reject para rechazar invitaciones.
-- WS /ws?token=JWT para recibir avisos de presencia, partidas e invitaciones.
-
-Cambios relevantes para frontend:
-- No se muestran jugadores ficticios.
-- No se muestran partidas inventadas.
-- El lobby carga partidas activas desde la API.
-- Las invitaciones se aceptan o rechazan contra el backend.
-- La lista de usuarios conectados sale de la presencia WebSocket.
-
-Nuevas reglas frontend-backend:
-- REST sigue siendo la fuente de verdad.
-- WebSocket solo notifica eventos: game_updated, invitation_received, invitation_answered y presence_changed.
-- Cuando llega game_updated, el frontend refresca el lobby con GET /games/live.
-- Cuando llega invitation_received o invitation_answered, el frontend refresca invitaciones y partidas.
+El frontend consume exclusivamente API REST con JWT.

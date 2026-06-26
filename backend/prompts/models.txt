@@ -1,63 +1,15 @@
-PROMPT MODELS BACKEND
-Crea los POJO VACIOS de entrada y salida de la API. 
-Estos modelos deben usar Pydantic BaseModel de FastAPI para separar la estructura de datos de la logica de los controladores.
+Modelos backend para la version minima de auditoria.
 
-RESPONSABILIDAD DE MODELS
+Mantener:
+- AuthenticationModels.py
+- UserModels.py
+- GameModels.py
 
-- Definir la forma de los datos.
-- Facilitar validacion automatica basica.
-- Evitar repetir estructuras en los controladores.
+Modelos principales:
+- LoginRequest
+- UserCreateRequest
+- UserUpdateRequest
+- GameCreateRequest
+- MovementRequest
 
-
-AuthenticationModels.py
-Este archivo contiene los modelos relacionados con autenticacion.
-
-MODELS PREVISTOS
-
-LoginRequest
-- Representa los datos que recibe POST /authentication/login.
-- Campos: username: str / password: str
-
-
-UserModels.py
-Este archivo contiene los modelos relacionados con usuarios.
-
-MODELS PREVISTOS
-
-UserCreateRequest
-- Representa los datos que recibe POST /users.
-- Campos: username: str / password: str
-
-UserUpdateRequest
-- Representa los datos que recibe PUT /users/{user_id}.
-- Sus campos son opcionales porque se puede actualizar solo parte del usuario.
-- Campos: username: str | None / password: str | None
-
-
-GameModels.py
-Este archivo contiene los modelos relacionados con partidas de ajedrez.
-
-MODELS PREVISTOS
-GameCreateRequest
-- Representa los datos que recibe POST /games.
-- Campos: white_user_id: int / black_user_id: int
-
-MovementRequest
-- Representa los datos que recibe PUT /games/{game_id}/move.
-- Contiene coordenadas de origen y destino.
-- Campos: from_x: int / from_y: int / to_x: int / to_y: int
-## AÑADIDOS DE ÚLTIMA HORA
-
-Modelos nuevos:
-- InvitationModels.py
-- InvitationCreateRequest
-
-Campos de InvitationCreateRequest:
-- to_user_id: int
-
-Modelos afectados indirectamente:
-- GameCreateRequest se reutiliza al aceptar invitaciones.
-- MovementRequest se mantiene igual para PUT /games/{game_id}/move.
-
-Regla:
-- No se añaden modelos complejos si un endpoint puede reutilizar los modelos existentes.
+No incluir modelos ajenos a autenticacion, usuarios y partidas.

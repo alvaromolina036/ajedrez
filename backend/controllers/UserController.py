@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from backend.models.UserModels import UserCreateRequest, UserUpdateRequest
 from backend.services.implementations.UserServiceImpl import UserServiceImpl
 from backend.utils.AuthDependencies import require_authenticated_user
-from backend.utils.WebSocketManager import websocket_manager
 
 router = APIRouter(prefix="/users", tags=["users"])
 user_service = UserServiceImpl()
@@ -18,12 +17,6 @@ def search_users(
         raise HTTPException(status_code=400, detail="El query no puede estar vacio")
 
     return user_service.search_users(query.strip())
-
-
-# Devuelve usuarios conectados por WebSocket.
-@router.get("/online")
-def get_online_users(authenticated_user: dict = Depends(require_authenticated_user)):
-    return websocket_manager.online_users()
 
 
 # Busca un usuario usando su id en el path.

@@ -1,11 +1,11 @@
 const API_CANDIDATES = [
     sessionStorage.getItem("apiBaseUrl"),
     "http://127.0.0.1:8000",
+    "http://127.0.0.1:8002",
     "http://127.0.0.1:8001",
 ].filter(Boolean);
 
 let apiBaseUrl = "";
-let socket = null;
 
 const token = sessionStorage.getItem("authToken");
 const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
@@ -230,22 +230,4 @@ finishGameButton.addEventListener("click", async () => {
     }
 });
 
-async function connectWebSocket() {
-    const baseUrl = await resolveApiBase();
-    const wsBaseUrl = baseUrl.replace("http://", "ws://").replace("https://", "wss://");
-    socket = new WebSocket(`${wsBaseUrl}/ws?token=${encodeURIComponent(token)}`);
-
-    socket.addEventListener("message", async (event) => {
-        const message = JSON.parse(event.data);
-        if (message.type === "game_updated" && Number(message.game_id) === currentGameId) {
-            await loadGame();
-        }
-    });
-
-    socket.addEventListener("close", () => {
-        setTimeout(connectWebSocket, 2000);
-    });
-}
-
 loadGame();
-connectWebSocket();

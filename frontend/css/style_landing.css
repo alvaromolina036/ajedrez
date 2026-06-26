@@ -55,7 +55,7 @@ button {
     box-shadow: 0 0 0 4px rgba(201, 154, 62, 0.18);
 }
 
-.api-status.online span {
+.api-status.connected span {
     background: #69c37b;
     box-shadow: 0 0 0 4px rgba(105, 195, 123, 0.18);
 }

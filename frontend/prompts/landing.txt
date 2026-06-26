@@ -2,7 +2,7 @@ PROMPT LANDING FRONTEND
 
 Actúa como un diseñador UX/UI senior especializado en aplicaciones web modernas.
 
-Rediseña la página landing.html de una plataforma de ajedrez online manteniendo la paleta de colores actual del proyecto.
+Rediseña la pagina landing.html de una plataforma de ajedrez manteniendo la paleta de colores actual del proyecto.
 
 Objetivos:
 

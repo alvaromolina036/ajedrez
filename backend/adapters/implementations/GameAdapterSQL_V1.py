@@ -31,8 +31,8 @@ class GameAdapterSQL_V1(GameAdapter):
             game["board_state"] = self._decode_board_state(game.get("board_state"))
         return game
 
-    # Lista partidas activas usando SQL parametrizado.
-    def find_live_games(self) -> list[dict]:
+    # Lista partidas guardadas activas usando SQL parametrizado.
+    def find_all(self) -> list[dict]:
         connection = get_connection()
         cursor = connection.cursor(dictionary=True)
         cursor.execute(

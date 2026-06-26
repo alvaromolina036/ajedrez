@@ -1,6 +1,7 @@
 const API_CANDIDATES = [
     sessionStorage.getItem("apiBaseUrl"),
     "http://127.0.0.1:8000",
+    "http://127.0.0.1:8002",
     "http://127.0.0.1:8001",
 ].filter(Boolean);
 
@@ -26,7 +27,7 @@ function setMode(mode) {
     formTitle.textContent = isLogin ? "Iniciar sesion" : "Crear cuenta";
     formSubtitle.textContent = isLogin
         ? "Entra para acceder a tus partidas y crear nuevos tableros."
-        : "Crea tu cuenta para empezar a jugar partidas online.";
+        : "Crea tu cuenta para empezar a jugar partidas.";
     submitButton.textContent = isLogin ? "Entrar" : "Registrarme";
     errorMsg.textContent = "";
 }
@@ -90,10 +91,10 @@ async function checkApiStatus() {
     try {
         await resolveApiBase();
         apiStatus.classList.remove("offline");
-        apiStatus.classList.add("online");
+        apiStatus.classList.add("connected");
         apiStatus.title = `API activa en ${apiBaseUrl}`;
     } catch {
-        apiStatus.classList.remove("online");
+        apiStatus.classList.remove("connected");
         apiStatus.classList.add("offline");
         apiStatus.title = "API desconectada";
     }

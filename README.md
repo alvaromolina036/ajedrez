@@ -1,91 +1,88 @@
-# ♟️ Ajedrez Online Multiplayer
+# Ajedrez academico
 
-Plataforma web de ajedrez online multijugador en tiempo real. Permite a los usuarios jugar partidas entre sí, crear o aceptar invitaciones y ver el estado del juego sincronizado en directo sin necesidad de recargar la página.
+Proyecto web de ajedrez orientado a auditoria academica. Mantiene una arquitectura por capas con autenticacion JWT, usuarios, partidas, motor de ajedrez, persistencia en MariaDB y adapters con implementacion SQL directa y ORM.
 
----
+## Funcionalidades mantenidas
 
-## 🚀 Características
+- Registro, login y verificacion de sesion con JWT.
+- Busqueda, consulta, actualizacion y borrado de usuarios.
+- Creacion, listado, consulta y borrado de partidas.
+- Carga del tablero y estado completo de una partida.
+- Ejecucion de movimientos mediante el motor de ajedrez.
+- Persistencia del estado del tablero en MariaDB.
+- Frontend minimo para login, panel de partidas y tablero.
 
-- 🔐 Sistema de autenticación de usuarios (registro/login con JWT)
-- ♟️ Partidas de ajedrez 1vs1 en tiempo real
-- 🔄 Actualización del tablero sin recargar la página
-- 👥 Lobby con usuarios conectados en tiempo real
-- 📩 Sistema de invitaciones entre jugadores
-- 📊 Partidas activas y estado del juego dinámico
-- 💾 Persistencia de partidas en base de datos
-- ⚡ Sincronización entre clientes mediante WebSockets
-
----
-
-## 🧠 Funcionalidades principales
-
-### 🎮 Juego en tiempo real
-Los movimientos se envían al servidor mediante API REST y se sincronizan con el rival mediante eventos en WebSocket, evitando recargas de página.
-
-### 👤 Usuarios
-- Búsqueda de usuarios por nombre o ID
-- Listado de usuarios conectados (online)
-
-### 🧩 Partidas
-- Creación de partidas públicas o privadas
-- Visualización de partidas en curso
-- Estado del tablero persistente
-
-### 📩 Invitaciones
-- Envío de invitaciones a otros usuarios
-- Aceptación o rechazo en tiempo real
-- Creación automática de partida al aceptar
-
----
-
-## 🛠️ Tecnologías utilizadas
+## Tecnologias
 
 ### Backend
-- Node.js / Express
+
+- Python
+- FastAPI
+- Uvicorn
 - MariaDB
-- WebSockets (para eventos en tiempo real)
-- JWT para autenticación
-- API REST
+- mysql-connector-python
+- SQLAlchemy
+- JWT
 
 ### Frontend
-- HTML5 / CSS3 / JavaScript
-- UI dinámica tipo SPA ligera
-- WebSocket client + consumo de API REST
 
----
+- HTML5
+- CSS3
+- JavaScript
+- Consumo de API REST con `fetch`
 
-## 📡 Arquitectura del sistema
+## Arquitectura
 
-El sistema se basa en una arquitectura híbrida:
+El backend sigue una separacion por capas:
 
-- **REST API**
-  - Usuarios
-  - Partidas
-  - Invitaciones
-  - Movimientos
+- `controllers`: endpoints REST.
+- `services`: reglas de aplicacion.
+- `adapters`: acceso a datos mediante interfaces.
+- `models`: modelos de entrada y salida.
+- `engine`: logica de ajedrez.
+- `utils`: seguridad, JWT y dependencias de autenticacion.
 
-- **WebSockets**
-  - Notificación de movimientos (`game_updated`)
-  - Invitaciones en tiempo real
-  - Estado de usuarios online
+La persistencia conserva dos estilos de acceso:
 
----
+- SQL directo: `GameAdapterSQL_V1` y `UserAdapterSQL_V1`.
+- ORM: `GameAdapterSQL_V2` y `UserAdapterSQL_V2`.
 
-## 🔄 Flujo de una partida
+`FileAdapter` se mantiene como adapter de fichero para cumplir la separacion de infraestructura.
 
-1. Usuario inicia sesión
-2. Busca o recibe invitación de otro jugador
-3. Se crea la partida en el backend
-4. Ambos jugadores se conectan a la partida
-5. Un jugador realiza un movimiento
-6. El backend actualiza el estado de la partida
-7. Se envía evento WebSocket al rival
-8. El rival actualiza el tablero sin recargar
+## Endpoints principales
 
----
+- `GET /`: estado del servidor.
+- `POST /users`: registrar usuario.
+- `GET /users/search?query=...`: buscar usuarios.
+- `GET /users/{user_id}`: consultar usuario por id.
+- `PUT /users/{user_id}`: actualizar usuario.
+- `DELETE /users/{user_id}`: borrar usuario.
+- `POST /authentication/login`: iniciar sesion.
+- `GET /authentication/verify`: verificar JWT.
+- `GET /games`: listar partidas activas guardadas.
+- `POST /games`: crear partida.
+- `GET /games/{game_id}`: consultar partida.
+- `GET /games/{game_id}/board`: consultar tablero.
+- `GET /games/{game_id}/state`: consultar partida, tablero y turno.
+- `PUT /games/{game_id}/move`: realizar movimiento.
+- `DELETE /games/{game_id}`: borrar partida.
 
-## 📂 Instalación y uso
+## Flujo de uso
+
+1. El usuario se registra o inicia sesion.
+2. El frontend guarda el JWT en `sessionStorage`.
+3. El usuario busca un rival por nombre o id.
+4. Se crea una partida mediante `POST /games`.
+5. El tablero se carga con `GET /games/{id}/state`.
+6. Cada movimiento se envia con `PUT /games/{id}/move`.
+7. El estado actualizado se persiste en MariaDB.
+
+## Validacion
+
+Con el backend activo, ejecutar:
 
 ```bash
-git clone https://github.com/alvaromolina036/ajedrez.git
-cd ajedrez
+python test.py
+```
+
+La validacion comprueba autenticacion, usuarios, busqueda, creacion/listado de partidas, estado del tablero, movimientos y persistencia en `games.board_state`.

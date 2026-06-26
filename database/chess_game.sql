@@ -28,16 +28,3 @@ CREATE TABLE games (
     KEY black_user_id (black_user_id)
 );
 
--- --------------------
--- Table: game_invitations
--- --------------------
-CREATE TABLE game_invitations (
-    id INT(11) NOT NULL AUTO_INCREMENT,
-    from_user_id INT(11) NOT NULL,
-    to_user_id INT(11) NOT NULL,
-    status ENUM('PENDING','ACCEPTED','REJECTED') DEFAULT 'PENDING',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    KEY from_user_id (from_user_id),
-    KEY to_user_id (to_user_id)
-);

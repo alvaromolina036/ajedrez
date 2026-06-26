@@ -119,13 +119,6 @@ class UserAdapterSQL_V1(UserAdapter):
         cursor = connection.cursor()
         cursor.execute(
             """
-            DELETE FROM game_invitations
-            WHERE from_user_id = %s OR to_user_id = %s
-            """,
-            (user_id, user_id),
-        )
-        cursor.execute(
-            """
             DELETE FROM games
             WHERE white_user_id = %s OR black_user_id = %s
             """,

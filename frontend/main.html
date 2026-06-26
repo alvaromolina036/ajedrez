@@ -20,7 +20,6 @@
                     <button class="nav-item active" type="button">Panel</button>
                     <button class="nav-item" type="button" id="focusCreateGameButton">Nueva partida</button>
                     <button class="nav-item" type="button" id="refreshGamesButton">Actualizar partidas</button>
-                    <button class="nav-item" type="button" id="refreshInvitationsButton">Invitaciones</button>
                 </details>
 
                 <details open>
@@ -35,7 +34,7 @@
                 <div>
                     <p class="eyebrow">Panel de juego</p>
                     <h1 id="welcomeText">Bienvenido</h1>
-                    <p class="header-copy">Gestiona tus partidas activas, elige rival y vuelve al tablero cuando quieras continuar.</p>
+                    <p class="header-copy">Crea partidas, abre una partida existente y vuelve al tablero cuando quieras continuar.</p>
                 </div>
                 <div class="header-actions">
                     <span class="api-pill" id="apiStatus">API</span>
@@ -79,7 +78,6 @@
                                 <span id="foundUserId"></span>
                             </div>
                             <button type="button" id="createGameWithUserButton">Crear</button>
-                            <button type="button" id="inviteUserButton">Invitar</button>
                         </div>
 
                         <form class="inline-form" id="openGameForm">
@@ -94,25 +92,9 @@
                     </div>
                 </div>
 
-                <div class="panel">
-                    <div class="panel-header">
-                        <h2>Usuarios conectados</h2>
-                        <span>WebSocket</span>
-                    </div>
-                    <ul class="opponent-list" id="connectedUsersList"></ul>
-                </div>
-
-                <div class="panel">
-                    <div class="panel-header">
-                        <h2>Invitaciones pendientes</h2>
-                        <span>Recibidas</span>
-                    </div>
-                    <ul class="game-list" id="invitationList"></ul>
-                </div>
-
                 <div class="panel panel-wide">
                     <div class="panel-header">
-                        <h2>Partidas en vivo</h2>
+                        <h2>Partidas disponibles</h2>
                         <span>API</span>
                     </div>
                     <ul class="game-list" id="gameList"></ul>

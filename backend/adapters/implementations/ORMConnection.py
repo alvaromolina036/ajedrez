@@ -35,12 +35,3 @@ class GameTable(Base):
     board_state = Column(JSON, nullable=True)
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 
-
-class GameInvitationTable(Base):
-    __tablename__ = "game_invitations"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    from_user_id = Column(Integer, nullable=False)
-    to_user_id = Column(Integer, nullable=False)
-    status = Column(String(20), nullable=False, default="PENDING")
-    created_at = Column(DateTime, nullable=False, server_default=func.now())

@@ -1,4 +1,4 @@
-from backend.adapters.implementations.ORMConnection import GameInvitationTable, GameTable, SessionLocal, UserTable
+from backend.adapters.implementations.ORMConnection import GameTable, SessionLocal, UserTable
 from backend.adapters.interfaces.UserAdapter import UserAdapter
 from backend.models.UserModels import UserCreateRequest, UserUpdateRequest
 
@@ -91,10 +91,6 @@ class UserAdapterSQL_V2(UserAdapter):
             if user is None:
                 return False
 
-            session.query(GameInvitationTable).filter(
-                (GameInvitationTable.from_user_id == user_id) |
-                (GameInvitationTable.to_user_id == user_id)
-            ).delete(synchronize_session=False)
             session.query(GameTable).filter(
                 (GameTable.white_user_id == user_id) |
                 (GameTable.black_user_id == user_id)

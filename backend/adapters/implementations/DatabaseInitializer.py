@@ -27,18 +27,6 @@ def ensure_database_schema():
         """
     )
 
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS game_invitations (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            from_user_id INT NOT NULL,
-            to_user_id INT NOT NULL,
-            status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
-            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-        )
-        """
-    )
-
     cursor.execute("SHOW COLUMNS FROM games LIKE 'board_state'")
     if cursor.fetchone() is None:
         cursor.execute("ALTER TABLE games ADD COLUMN board_state JSON NULL")

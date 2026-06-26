@@ -59,9 +59,9 @@ class GameServiceImpl(GameService):
 
         return saved_game
 
-    # Lista partidas activas.
-    def get_live_games(self) -> list[dict]:
-        return self.game_adapter.find_live_games()
+    # Lista partidas guardadas activas.
+    def list_games(self) -> list[dict]:
+        return self.game_adapter.find_all()
 
     # Busca una partida por id.
     def get_game(self, game_id: int) -> dict | None:

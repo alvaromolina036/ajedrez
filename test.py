@@ -1,4 +1,3 @@
-import asyncio
 import json
 import time
 import urllib.error
@@ -11,14 +10,9 @@ try:
 except ImportError:
     requests = None
 
-try:
-    import websockets
-except ImportError:
-    websockets = None
-
-
 API_CANDIDATES = [
     "http://127.0.0.1:8000",
+    "http://127.0.0.1:8002",
     "http://127.0.0.1:8001",
 ]
 
@@ -147,50 +141,6 @@ def read_board_state_from_database(game_id: int) -> dict | None:
     return json.loads(row["board_state"])
 
 
-async def wait_for_event(websocket, event_type: str, timeout: int = 6) -> dict:
-    end_time = time.time() + timeout
-    while time.time() < end_time:
-        remaining = max(0.1, end_time - time.time())
-        message = await asyncio.wait_for(websocket.recv(), timeout=remaining)
-        data = json.loads(message)
-        if data.get("type") == event_type:
-            return data
-    raise TimeoutError(f"No se recibio evento {event_type}")
-
-
-async def run_websocket_test(
-    runner: TestRunner,
-    api: ApiClient,
-    token_a: str,
-    token_b: str,
-    game_id: int,
-):
-    if websockets is None:
-        runner.check("WebSocket disponible", False, "No esta instalado el paquete websockets")
-        return
-
-    ws_base_url = api.base_url.replace("http://", "ws://").replace("https://", "wss://")
-    url_a = f"{ws_base_url}/ws?token={token_a}"
-    url_b = f"{ws_base_url}/ws?token={token_b}"
-
-    async with websockets.connect(url_a) as ws_a, websockets.connect(url_b) as ws_b:
-        online = api.request("GET", "/users/online", token=token_a).data
-        runner.check("GET /users/online", len(online) >= 2)
-
-        api.request(
-            "PUT",
-            f"/games/{game_id}/move",
-            {"from_x": 0, "from_y": 6, "to_x": 0, "to_y": 5},
-            token=token_b,
-        )
-
-        event = await wait_for_event(ws_a, "game_updated")
-        runner.check("WebSocket recibe game_updated", event.get("game_id") == game_id)
-
-        refreshed_state = api.request("GET", f"/games/{game_id}/state", token=token_a).data
-        runner.check("Segundo cliente refresca estado sin recargar", refreshed_state["turn"] == "BLANCA")
-
-
 def main():
     runner = TestRunner()
     api = ApiClient()
@@ -204,31 +154,25 @@ def main():
     suffix = str(int(time.time()))
     user_a = {"username": f"qa_a_{suffix}", "password": "test1234"}
     user_b = {"username": f"qa_b_{suffix}", "password": "test1234"}
-    user_c = {"username": f"qa_c_{suffix}", "password": "test1234"}
 
     token_a = None
     token_b = None
-    token_c = None
     direct_game_id = None
 
     try:
         created_a = api.request("POST", "/users", user_a).data
         created_b = api.request("POST", "/users", user_b).data
-        created_c = api.request("POST", "/users", user_c).data
-        runner.check("Registro de usuario", all(user.get("id") for user in [created_a, created_b, created_c]))
+        runner.check("Registro de usuario", all(user.get("id") for user in [created_a, created_b]))
 
         login_a = api.request("POST", "/authentication/login", user_a).data
         login_b = api.request("POST", "/authentication/login", user_b).data
-        login_c = api.request("POST", "/authentication/login", user_c).data
         token_a = login_a["token"]
         token_b = login_b["token"]
-        token_c = login_c["token"]
         created_users.extend([
             (created_a["id"], token_a),
             (created_b["id"], token_a),
-            (created_c["id"], token_a),
         ])
-        runner.check("Login con JWT valido", bool(token_a and token_b and token_c))
+        runner.check("Login con JWT valido", bool(token_a and token_b))
 
         bad_login = api.request(
             "POST",
@@ -254,8 +198,8 @@ def main():
         created_games.append((direct_game_id, token_a))
         runner.check("POST /games crea partida", direct_game["active"] is True)
 
-        live_games = api.request("GET", "/games/live", token=token_a).data
-        runner.check("GET /games/live", any(game["id"] == direct_game_id for game in live_games))
+        games = api.request("GET", "/games", token=token_a).data
+        runner.check("GET /games", any(game["id"] == direct_game_id for game in games))
 
         state_before = api.request("GET", f"/games/{direct_game_id}/state", token=token_a).data
         runner.check("GET /games/{id}/state", len(state_before["board"]) == 32 and state_before["turn"] == "BLANCA")
@@ -283,33 +227,6 @@ def main():
             and board_state.get("turn") == "NEGRA"
             and find_piece(board_state.get("board", []), 0, 2) is not None,
         )
-
-        reject_invitation = api.request(
-            "POST",
-            "/invitations",
-            {"to_user_id": created_c["id"]},
-            token=token_a,
-        ).data
-        pending_c = api.request("GET", "/invitations/pending", token=token_c).data
-        runner.check("POST /invitations y GET /invitations/pending", any(inv["id"] == reject_invitation["id"] for inv in pending_c))
-
-        rejected = api.request("PUT", f"/invitations/{reject_invitation['id']}/reject", token=token_c).data
-        runner.check("PUT /invitations/{id}/reject", rejected["status"] == "REJECTED")
-
-        accept_invitation = api.request(
-            "POST",
-            "/invitations",
-            {"to_user_id": created_b["id"]},
-            token=token_a,
-        ).data
-        accepted = api.request("PUT", f"/invitations/{accept_invitation['id']}/accept", token=token_b).data
-        created_games.append((accepted["game"]["id"], token_a))
-        runner.check(
-            "PUT /invitations/{id}/accept",
-            accepted["invitation"]["status"] == "ACCEPTED" and accepted["game"]["active"] is True,
-        )
-
-        asyncio.run(run_websocket_test(runner, api, token_a, token_b, direct_game_id))
 
     except Exception as error:
         runner.fail("Ejecucion general de tests", error)

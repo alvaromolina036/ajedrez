@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from backend.models.GameModels import GameCreateRequest, MovementRequest
 from backend.services.implementations.GameServiceImpl import GameServiceImpl
 from backend.utils.AuthDependencies import require_authenticated_user
-from backend.utils.WebSocketManager import websocket_manager
 
 router = APIRouter(prefix="/games", tags=["games"])
 game_service = GameServiceImpl()
@@ -21,15 +20,15 @@ def validate_board_coordinate(value: int, field_name: str):
         )
 
 
-# Lista partidas activas.
-@router.get("/live")
-def get_live_games(authenticated_user: dict = Depends(require_authenticated_user)):
-    return game_service.get_live_games()
+# Lista partidas guardadas activas.
+@router.get("")
+def list_games(authenticated_user: dict = Depends(require_authenticated_user)):
+    return game_service.list_games()
 
 
 # Crea una partida nueva entre dos usuarios.
 @router.post("")
-async def create_game(request: GameCreateRequest, authenticated_user: dict = Depends(require_authenticated_user)):
+def create_game(request: GameCreateRequest, authenticated_user: dict = Depends(require_authenticated_user)):
     if request.white_user_id <= 0:
         raise HTTPException(status_code=400, detail="white_user_id debe ser mayor que 0")
     if request.black_user_id <= 0:
@@ -42,7 +41,6 @@ async def create_game(request: GameCreateRequest, authenticated_user: dict = Dep
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error))
 
-    await websocket_manager.broadcast_game_updated(game["id"])
     return game
 
 
@@ -81,7 +79,7 @@ def get_state(game_id: int, authenticated_user: dict = Depends(require_authentic
 
 # Recibe un movimiento y lo envia al servicio de partidas.
 @router.put("/{game_id}/move")
-async def make_move(
+def make_move(
     game_id: int,
     request: MovementRequest,
     authenticated_user: dict = Depends(require_authenticated_user),
@@ -99,17 +97,15 @@ async def make_move(
 
     if result is None:
         raise HTTPException(status_code=404, detail="Partida no encontrada")
-    await websocket_manager.broadcast_game_updated(game_id)
     return result
 
 
 # Elimina o finaliza una partida existente.
 @router.delete("/{game_id}")
-async def delete_game(game_id: int, authenticated_user: dict = Depends(require_authenticated_user)):
+def delete_game(game_id: int, authenticated_user: dict = Depends(require_authenticated_user)):
     validate_game_id(game_id)
 
     deleted = game_service.delete_game(game_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Partida no encontrada")
-    await websocket_manager.broadcast_game_updated(game_id)
     return {"message": "Partida borrada correctamente"}
